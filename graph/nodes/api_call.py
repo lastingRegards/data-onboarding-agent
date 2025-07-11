@@ -10,7 +10,7 @@ import pandas as pd
 import requests
 from typing import Annotated, List, TypedDict, Any, Union, Tuple
 from langchain_core.messages import HumanMessage, SystemMessage, AnyMessage
-from langgraph.graph import MessagesState, START, END
+from langgraph.graph import MessagesState, START, END, StateGraph
 from langgraph.prebuilt import create_react_agent
 from pydantic import BaseModel, Field
 from langgraph.types import Send
@@ -78,7 +78,7 @@ planner = llm.with_structured_output(Calls)
 
 
 # Worker state
-class WorkerState(TypedDict):
+class WorkerState(MessagesState):
     json_response: dict[str,Any] # unsure if need
     call_spec: Call
     raw_data: Annotated[list[Tuple[str,list]], operator.add]
@@ -99,50 +99,47 @@ def orchestrator(state: State):
 
 
 
-# worker node prompt
-def config_prompt(state: WorkerState, config: RunnableConfig) -> list[AnyMessage]:  
-    table = config["configurable"].get("call_spec")["table"]
-    system_msg = f'''You are a data onboarder. You have been given the table {table} Use the given API call specification to query all possible data from this endpoint.'''
-    return [{"role": "system", "content": system_msg}] + state["messages"]
-
 # worker agent 
 worker_agent = create_react_agent(
     model=llm,
     tools=tools,
     response_format=Table
-    prompt = config_prompt
 )
 
 # need to return answer as a huge list
 def llm_call(state: WorkerState):
-    """Worker writes a section of the report"""
+    """Worker makes API call"""
+    call_spec = state["call_spec"]
+
+    user_msg = f'''You are a data onboarder. You have been given the table {call_spec["table"]} to onboard data into
+    using a given API call specification. Retrieve all possible data from the endpoint.
+    Authorization: {call_spec["auth"]}
+    Call Syntax: {call_spec["call"]}
+    Response Syntax: {call_spec["response"]}
+    '''
 
     # Generate section
-    result = llm.invoke(
+    result = worker_agent.invoke(
         [
-            SystemMessage(
-                content="Use the given API call specification to query all possible data from this endpoint."
-            ),
-            HumanMessage(
-                content=f"Here is the API call specification: {state['call_spec']}"
-            ),
+            {"messages": [{"role": "user", "content": user_msg}]},
         ]
     )
 
     # Write the updated section to completed sections
-    return {"raw_data": [result.json_response]}
+    return {"messages": [result.messages], "raw_data": [result.json_response]}
 
 
 def synthesizer(state: State):
     """Synthesize full report from sections"""
 
     # List of completed sections
-    completed_sections = state["completed_sections"]
+    raw_data = state["raw_data"]
 
     # Format completed section to str to use as context for final sections
-    completed_report_sections = "\n\n---\n\n".join(completed_sections)
-
-    return {"final_report": completed_report_sections}
+    #completed_report_sections = "\n\n---\n\n".join(completed_sections)
+    print(raw_data)
+    return
+    #return {"final_report": completed_report_sections}
 
 
 # Conditional edge function to create llm_call workers that each write a section of the report
@@ -176,7 +173,9 @@ orchestrator_worker_builder = StateGraph(State)
 # Add the nodes
 orchestrator_worker_builder.add_node("orchestrator", orchestrator)
 orchestrator_worker_builder.add_node("llm_call", llm_call)
-orchestrator_worker_builder.add_node("synthesizer", synthesizer)
+orchestrator_worker_builder.add_conditional_edges("llm_call", should_continue, ["tools", synthesizer])
+orchestrator_worker_builder.add_conditional_edges("call_model", should_continue, ["tools", synthesizer])
+orchestrator_worker_builder.add_edge("tools", "call_model")
 
 # Add edges to connect nodes
 orchestrator_worker_builder.add_edge(START, "orchestrator")
@@ -190,7 +189,5 @@ orchestrator_worker_builder.add_edge("synthesizer", END)
 orchestrator_worker = orchestrator_worker_builder.compile()
 
 # Invoke
-state = orchestrator_worker.invoke({"topic": "Create a report on LLM scaling laws"})
+#state = orchestrator_worker.invoke({"topic": "Create a report on LLM scaling laws"})
 
-from IPython.display import Markdown
-Markdown(state["final_report"])
