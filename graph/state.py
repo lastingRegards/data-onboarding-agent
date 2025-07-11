@@ -1,6 +1,6 @@
 from typing import Annotated, Optional
-
-from typing_extensions import TypedDict
+import operator
+from typing_extensions import TypedDict, Tuple
 
 
 from langgraph.graph.message import add_messages
@@ -24,7 +24,12 @@ class State(TypedDict):
 
     # data to extract (maybe just leave in msgs)
 
-    # currently extracted data
+    api_calls: list
+
+    # currently extracted data: a list of tuples (Table, list of all table data)
+    raw_data: Annotated[list[Tuple[str,list]], operator.add]
+
+    # final form of data needed
 
     
 

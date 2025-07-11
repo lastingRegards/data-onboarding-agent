@@ -11,6 +11,7 @@ dotenv = "*"
 langchain-openai = "*"
 langchain-pinecone = "*"
 langchain-community = "*"
+pandas = "*"
 
 [dev-packages]
 
