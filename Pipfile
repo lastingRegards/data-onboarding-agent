@@ -12,6 +12,7 @@ langchain-openai = "*"
 langchain-pinecone = "*"
 langchain-community = "*"
 pandas = "*"
+ratelimit = "*"
 
 [dev-packages]
 

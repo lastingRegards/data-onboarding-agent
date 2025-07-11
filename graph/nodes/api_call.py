@@ -9,9 +9,14 @@ from langgraph.prebuilt import ToolNode
 import pandas as pd
 import requests
 from typing import Annotated, List, TypedDict, Any, Union, Tuple
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage, AnyMessage
 from langgraph.graph import MessagesState, START, END
 from langgraph.prebuilt import create_react_agent
+from pydantic import BaseModel, Field
+from langgraph.types import Send
+from langchain.chat_models import init_chat_model
+from ratelimit import limits
+from langchain_core.runnables import RunnableConfig
 
 llm = init_chat_model("gpt-4o-mini", model_provider="openai", temperature=0)
 
@@ -38,9 +43,9 @@ class Calls(BaseModel):
     )
 
 
-class Tables(BaseModel):
-    tables: List[dict[str,Any]] = Field(
-        description="List of JSON objects in dictionary form.",
+class Table(BaseModel):
+    tables: List[Union[list,dict]] = Field(
+        description="List of JSON objects in list/dictionary form.",
     )
 
 
@@ -49,11 +54,12 @@ class Tables(BaseModel):
 ###########################################################################################
 # TOOLS
 
+@limits(calls=100, period=10)
 @tool
 def get_json_request(url:str, params:dict[str,Any], headers:dict[str,Any]) -> Union[dict,list]:
     '''Performs an HTTP get request using specified URL for a JSON object.'''
     response = requests.get(url, params=params, headers=headers)
-    return response.json()
+    return response.json()["results"]
 
 tools = [get_json_request]
 tool_node = ToolNode(tools)
@@ -65,54 +71,10 @@ def batch_to_dataframe(batch : list[dict]) -> pd.DataFrame:
     pass
 """
 
-# orchestrator llm
-worker_agent = create_react_agent(
-    model=llm,
-    tools=tools,
-    #response_format=WeatherResponse  
-)
-
-
-
-
-########################################################################
-### Tool node routing
-
-def should_continue(state: MessagesState):
-    messages = state["messages"]
-    last_message = messages[-1]
-    if last_message.tool_calls:
-        return "tools"
-    return END
-
-def call_model(state: MessagesState):
-    messages = state["messages"]
-    response = worker_agent.invoke(messages)
-    return {"messages": [response]}
-
-
-
-
-
-
-
 ############################################################################################
-
-from pydantic import BaseModel, Field
-from langgraph.types import Send
-from langchain.chat_models import init_chat_model
-
-# use read json to get pandas
-
-
-
-
-
 
 # Augment the LLM with schema for structured output
 planner = llm.with_structured_output(Calls)
-
-#####
 
 
 # Worker state
@@ -133,9 +95,23 @@ def orchestrator(state: State):
             HumanMessage(content=f"Here is the mapping: {state['mapping']}"),
         ]
     )
-
     return {"api_calls": calls_to_make.calls}
 
+
+
+# worker node prompt
+def config_prompt(state: WorkerState, config: RunnableConfig) -> list[AnyMessage]:  
+    table = config["configurable"].get("call_spec")["table"]
+    system_msg = f'''You are a data onboarder. You have been given the table {table} Use the given API call specification to query all possible data from this endpoint.'''
+    return [{"role": "system", "content": system_msg}] + state["messages"]
+
+# worker agent 
+worker_agent = create_react_agent(
+    model=llm,
+    tools=tools,
+    response_format=Table
+    prompt = config_prompt
+)
 
 # need to return answer as a huge list
 def llm_call(state: WorkerState):
@@ -175,6 +151,23 @@ def assign_workers(state: State):
 
     # Kick off section writing in parallel via Send() API
     return [Send("llm_call", {"call_spec": c}) for c in state["api_calls"]]
+
+########################################################################
+### Tool node routing
+
+def should_continue(state: MessagesState):
+    messages = state["messages"]
+    last_message = messages[-1]
+    if last_message.tool_calls:
+        return "tools"
+    return END
+
+def call_model(state: MessagesState):
+    messages = state["messages"]
+    response = worker_agent.invoke(messages)
+    return {"messages": [response]}
+
+#######################################################################
 
 
 # Build workflow

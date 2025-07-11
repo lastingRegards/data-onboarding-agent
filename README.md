@@ -1,24 +1,14 @@
-## Data Onboarding Agent
+# Data Onboarding Agent
 
 credentials for account info is kept in a txt file in the main project directory, just for testing convenience.
 
-Steps:
-* use URL, check with stored credentials for matching account and return that info
-* using URL, account info, and ontology, make summary of all API details needed to onboard data
-    * currently, no more summary of transformations: should be able deduce from response fields
-* Query API using all calls listed and gather all data
-    * try to summarize this in pandas format, can transform using python repl tools
-* Using all gathered data, then attempt to match
+## Outline
+- START: **URL** passed in as input 
+- **account:** references the stored **credentials** (currently just in untracked text file for testing purposes) against **URL**, adds information about account to state (token, tier, etc)
+- **retrieve:** takes account info and looks up ontology stored in Pinecone VectorDB, makes **mapping** of all tables can onboard to and API call specifications for doing so
 
+- **api_call:** Uses **mapping** to orchestrate worker agents. Each worker agent is assigned an API endpoint to query all data from.
+    - currently: no OAUTH, only GET requests with JSON return format implemented
+    - consider implementing rate limits to API call
+    - consolidating: once a worker is all done, they should add their cumulative data to list in the form of (tableName, [list of all json objects retrieved])
 
-
-PRIMARY TODOs:
-* tool calling and configuring dynamic tools
-https://langchain-ai.github.io/langgraph/how-tos/tool-calling/#configuration
-* rate limiting
-https://python.langchain.com/docs/how_to/chat_model_rate_limiting/
-
-
-TODO:
-- account lookup error handling
-- cache lookup results and implement architecture to search for if previous results exist first
