@@ -1,0 +1,6 @@
+ACCOUNT = 'account'
+RETRIEVE = 'retrieve'
+MAPPER = 'mapper'
+MAKE_CALLS = 'make_calls'
+TRANSFORM = 'transform'
+ONBOARD = 'onboard'
