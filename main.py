@@ -1,5 +1,6 @@
 from graph.graph import app
 from test_vars import URL
+import pprint
 
 
 
@@ -7,4 +8,8 @@ from test_vars import URL
 ########################################################################################
 
 # MAIN APP CALL
-print(app.invoke(input={"service":URL})["service"])
+result = (app.invoke(input={"service":URL}))
+for key in result:
+    print("==================================================")
+    print(key)
+    pprint.pp(result[key])

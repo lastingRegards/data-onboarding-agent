@@ -11,8 +11,9 @@ from test_vars import CREDENTIAL_PATH
 def account(state: State) -> Dict[str, Any]:
     print('---ACCOUNT LOOKUP---')
     url = state["service"]
-    docs = JSONLoader(CREDENTIAL_PATH,".").load()
+    docs = JSONLoader(CREDENTIAL_PATH,".",text_content=False).load()
     res = account_chain.invoke({"accounts":docs, "url":url})
+
     return {"service" : res}
 
 

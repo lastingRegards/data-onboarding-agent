@@ -15,6 +15,8 @@ pandas = "*"
 ratelimit = "*"
 langchain-google-genai = "*"
 langgraph-cli = {extras = ["inmem"], version = "*"}
+zod = "*"
+jq = "*"
 
 [dev-packages]
 

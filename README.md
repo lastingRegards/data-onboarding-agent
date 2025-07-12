@@ -1,14 +1,25 @@
 # Data Onboarding Agent
 
 ## Setup
+### pipenv
+pipenv is used to manage the virtual environment for this project. After cloning the git repository, run the following in the project directory:
+```
+# Install dependencies including development packages
+$ pipenv install --dev
+
+# Activate the virtual environment
+$ pipenv shell
+```
+From here, you should be able to run the project as normal using `python`. To exit the virtual environment, use `exit`.
+
 ### Required .env keys
 - `OPENAI_API_KEY`
 - `GOOGLE_API_KEY`
 - `PINECONE_API_KEY`
 - `LANGCHAIN_API_KEY`
 
-## Testing Variables
-These can be found and set in `main.py` for testing purposes.
+### Testing Variables
+These can be found and set in `test_vars.py` for testing purposes.
 - `CREDENTIAL_PATH`: path to the credentials JSON folder for account credentials of services we are onboarding data from. An example of this file is provided at `example_credentials.json`.
 - `PINECONE_INDEX`: name of the Pinecone index used to store the vector database for this project. 
 - `URL`: URL of documentation for service we are onboarding from.
@@ -21,9 +32,7 @@ Pinecone DB is in `text-embedding-3-small` format with 1536 dimensions. This sto
 - START: **URL** passed in as input 
 - **account:** references the stored **credentials** (currently just in untracked text file for testing purposes) against **URL**, adds information about account to state (token, tier, etc)
 - **retrieve:** takes account info and looks up ontology stored in Pinecone VectorDB, makes **mapping** of all tables can onboard to and API call specifications for doing so
-
-- **api_call:** Uses **mapping** to orchestrate worker agents. Each worker agent is assigned an API endpoint to query all data from.
+- **get_data:** Makes API calls to retrieve all data possible based off the calls specified in **mapping**.
     - currently: no OAUTH, only GET requests with JSON return format implemented
-    - consider implementing rate limits to API call
-    - consolidating: once a worker is all done, they should add their cumulative data to list in the form of (tableName, [list of all json objects retrieved])
+- onboarding implementation in progress
 
