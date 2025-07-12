@@ -1,6 +1,21 @@
 # Data Onboarding Agent
 
-credentials for account info is kept in a txt file in the main project directory, just for testing convenience.
+## Setup
+### Required .env keys
+- `OPENAI_API_KEY`
+- `GOOGLE_API_KEY`
+- `PINECONE_API_KEY`
+- `LANGCHAIN_API_KEY`
+
+## Testing Variables
+These can be found and set in `main.py` for testing purposes.
+- `CREDENTIAL_PATH`: path to the credentials JSON folder for account credentials of services we are onboarding data from. An example of this file is provided at `example_credentials.json`.
+- `PINECONE_INDEX`: name of the Pinecone index used to store the vector database for this project. 
+- `URL`: URL of documentation for service we are onboarding from.
+
+### Pinecone DB
+Pinecone DB is in `text-embedding-3-small` format with 1536 dimensions. This stores a JSON file of the ontology being onboarded to. The `ingestion.py` file was called to embed the ontology file, see this for more details.
+
 
 ## Outline
 - START: **URL** passed in as input 

@@ -8,20 +8,10 @@ from langchain_pinecone import PineconeVectorStore
 from langchain_community.document_loaders import JSONLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chat_models import init_chat_model
+from main import PINECONE_INDEX
 
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 
-
-def ingest_docs(json_obj):
-
-    splitter = RecursiveJsonSplitter(max_chunk_size=600)
-    docs = splitter.create_documents(texts=[json_obj])
-
-    print(f"Going to add {len(docs)} to Pinecone")
-    PineconeVectorStore.from_documents(
-        docs, embeddings, index_name="aden-rag"
-    )
-    print("****Loading to vectorstore done ***")
 
 def ingest_json(path:str):
     loader = JSONLoader(
@@ -41,13 +31,12 @@ def ingest_json(path:str):
     )
     print("****Loading to vectorstore done ***")
 
-
-INDEX_NAME = "aden-rag"
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
-docsearch = PineconeVectorStore(index_name=INDEX_NAME, embedding=embeddings)
+docsearch = PineconeVectorStore(index_name=PINECONE_INDEX, embedding=embeddings)
 retriever=docsearch.as_retriever()
 
 
 if __name__ == "__main__":
-    #ingest_json()
+    #path = ""
+    #ingest_json(path)
     pass
