@@ -21,6 +21,18 @@ from pydantic import validate_call
 
 llm = init_chat_model("gpt-4o-mini", model_provider="openai")
 
+class Table(BaseModel):
+    name: str = Field(description="tableName of the table.")
+    data:dict[str,list] = Field(
+        description="A dictionary of column names (keys) mapped to a list of the column's values.",
+        example={'col_1': [3, 2, 1, 0], 'col_2': ['a', 'b', 'c', 'd']}
+    )
+
+class Tables(BaseModel):
+    tables:list[Table] = Field(
+        description="A list of Table objects."
+    )
+
 
 ###########################################################################################
 # TOOLS
@@ -49,13 +61,14 @@ class WorkerState(TypedDict):
 # worker agent 
 worker_agent = create_react_agent(
     llm,
-    tools=tools
+    tools=tools,
+    response_format=Tables
 )
 
 
 ########################################################################
 ### Tool node routing
-
+'''
 def should_continue(state: WorkerState):
     messages = state["messages"]
     last_message = messages[-1]
@@ -88,3 +101,4 @@ orchestrator_worker = orchestrator_worker_builder.compile()
 # Invoke
 #state = orchestrator_worker.invoke({"topic": "Create a report on LLM scaling laws"})
 
+'''

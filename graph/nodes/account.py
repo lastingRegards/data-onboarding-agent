@@ -6,12 +6,12 @@ from graph.state import State
 from langchain_community.document_loaders import JSONLoader
 
 from graph.chains.get_account import account_chain
-from main import credential_path
+from test_vars import CREDENTIAL_PATH
 
 def account(state: State) -> Dict[str, Any]:
     print('---ACCOUNT LOOKUP---')
     url = state["service"]
-    docs = JSONLoader(credential_path,".").load()
+    docs = JSONLoader(CREDENTIAL_PATH,".").load()
     res = account_chain.invoke({"accounts":docs, "url":url})
     return {"service" : res}
 

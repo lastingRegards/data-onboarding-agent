@@ -9,6 +9,6 @@ credentials.txt
 credentials.json
 
 # testing/debug related files
+ignore_these
 tester.py
 TODO.md
-hubspot_test.md

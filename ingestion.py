@@ -8,7 +8,7 @@ from langchain_pinecone import PineconeVectorStore
 from langchain_community.document_loaders import JSONLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chat_models import init_chat_model
-from main import PINECONE_INDEX
+from test_vars import PINECONE_INDEX
 
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 
