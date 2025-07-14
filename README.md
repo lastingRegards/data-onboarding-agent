@@ -50,7 +50,9 @@ Currently, the project takes in a URL to a documentation page and from there wor
 
 
 ## In Progress
+- **Add in UI:** Add more minimalistic front-end UI and remove hard coding of URL used.
 - **More thorough API scraping:** Keep AI from hallucinating documentation and be more thorough in scraping relevant endpoints.
+- **More authorization support:** Add support for OAuth/Oauth 2.0 based APIs.
 - **Data processing/transformation:** Currently, data is simply read in from API endpoints and then passed into the Aden system. Need to process data, identify relationships, and perform necessary transformations for more thorough onboarding.
 - **Error handling:** Incorrect/extra columns in onboarding can result in the entire table of data not being uploaded, needs to be addressed. More refinement of AI workflow needed in general to validate responses and prevent errors.
 - **Refine onboarding:** Ensure onboarding data is not resulting in duplicate entries, ignore these values or possibly consider allowing onboarded data to update previous entries.
