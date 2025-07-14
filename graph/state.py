@@ -1,22 +1,22 @@
-from typing import Annotated, Optional
+from typing import Annotated, Any
 import operator
 from typing_extensions import TypedDict
 from pydantic import BaseModel, Field
+from langgraph.graph.message import add_messages
 
-# For react agent
+
+# For data formatting
 class Table(BaseModel):
-    name: str = Field(description="tableName of the table.")
-    data:dict[str,list] = Field(
-        description="A dictionary of column names (keys) mapped to a list of the column's values.",
-        example={'col_1': [3, 2, 1, 0], 'col_2': ['a', 'b', 'c', 'd']}
-    )
+    """A table of data."""
+
+    tableName: str = Field( ..., description="The tableName of the table")
+    rows: list[dict[str,Any]] = Field(...,
+                    description="""A list of rows of data in the table. Each row is a dict with columnName as
+                    the key and cell value as the value.""")
 
 class Tables(BaseModel):
-    tables:list[Table] = Field(
-        description="A list of Table objects."
-    )
+    tables: list[Table] = Field(...,description="A list of tables")
 
-from langgraph.graph.message import add_messages
 
 
 ###########################################################################################
@@ -31,17 +31,8 @@ class State(TypedDict):
     # service info: our account info, the API link, etc
     service: str
 
-    # documentation summary
+    # documentation summary/ontology mapping
     mapping: str
-
-    # mapping
-
-    # headers to use for authentication
-    headers: Optional[dict[str,str]]
-
-    # data to extract (maybe just leave in msgs)
-
-    api_calls: list
 
     # REACT agent's API calls raw response
     raw_data: str
