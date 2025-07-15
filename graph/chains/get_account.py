@@ -8,18 +8,10 @@ from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, Field
 from typing import Union
 
+from graph.state import ValidAccount
+
 llm = init_chat_model("gpt-4o-mini", model_provider="openai", temperature=0)
 
-# For account results formatting
-class Account(BaseModel):
-    """Information on an account."""
-
-    access_token: str = Field( ..., description="The access token of the account.")
-    other_service_info: str = Field(...,
-                    description="""All other output requested.""")
-
-class ValidAccount(BaseModel):
-    result: Union[str,Account] = Field( ..., description="The Account information if successfully found, otherwise just return 'Fail'.")
 
 structured_llm = llm.with_structured_output(ValidAccount)
 

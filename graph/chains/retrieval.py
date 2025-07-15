@@ -33,10 +33,10 @@ get_bg = ChatPromptTemplate.from_messages(
         2. The rate limit for our account (ex. 10 requests per 10 seconds)
         3. Pagination details, if applicable
         4. All base URLs used to make API calls
-        5. For EVERY table in our ontology which has data we can onboard from this API return the following:
+        5. For EVERY API endpoint with relevant data we can onboard return the following:
             - The API call method and endpoint necessary to batch query the data
             - Any parameters required by the API call
-            - Response format received from call
+            - Response schema received from call
 
         Your answer should be in markdown format and thorough enough that we will NOT need to reference the 
         documentation in order to retrieve ALL RELEVANT data.
