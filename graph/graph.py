@@ -15,15 +15,14 @@ workflow.add_node(GET_DATA, get_data)
 workflow.add_node(FORMAT_DATA, format_data)
 workflow.add_node(ONBOARD, onboard)
 
-workflow.add_edge(START, ACCOUNT)
-workflow.add_edge(ACCOUNT, RETRIEVE)
+workflow.add_edge(START, ACCOUNT) # Account uses Command to handle flow to either retrieve or end
+#workflow.add_edge(ACCOUNT, RETRIEVE)
 workflow.add_edge(RETRIEVE, GET_DATA)
 workflow.add_edge(GET_DATA, FORMAT_DATA)
 workflow.add_edge(FORMAT_DATA, ONBOARD)
 workflow.add_edge(ONBOARD, END)
 
 app = workflow.compile()
-res = app.invoke(input={"service":URL})
 
 
 

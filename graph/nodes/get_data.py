@@ -20,7 +20,7 @@ from ratelimit import limits
 from langchain_core.runnables import RunnableConfig
 from pydantic import validate_call
 
-llm = init_chat_model("gpt-4o-mini", model_provider="openai")
+llm = init_chat_model("gemini-2.0-flash", model_provider="google_genai")
 
 
 
@@ -75,14 +75,14 @@ worker_agent = create_react_agent(
 # node
 def get_data(state: State):
     print("---FETCHING DATA---")
-    service = state["service"]
+    token = state["access_token"]
     mapping = state["mapping"]
     user_msg = f'''You are a data analyst. You have been given a description of API calls to make in order
     to onboard data into our database. Make API calls to retrieve all data based on the given description,
     making sure you are using VALID AUTHORIZATION, HEADERS, AND PARAMETERS for each call made.
     If you run into an error making the call, try once again and then assume there is an issue with the 
-    endpoint and move on to the next endpoint.
-    Account Specifications: \n\n{service}\n\n
+    endpoint and move on to the next endpoint. Return all retrieved data in table format.
+    Access Token: \n\n{token}\n\n
     Mapping: \n\n{mapping}\n\n
     '''
 
@@ -102,7 +102,8 @@ def get_data(state: State):
 def cleaner_node(state : State):
     cleaner_llm = llm.with_structured_output(Tables)
     prompt_template = ChatPromptTemplate([
-    ("system", "You will be given the raw output of an AI agent's API calls. Parse and return the data in this response into a structured format as defined."),
+    ("system", "You will be given the raw output of data onboarding AI agent's API calls. Use the given"
+    "tools to transform each table of data into its own pandas dataframe."),
     ("user", "{raw_data}")
 ])
     cleaner_chain = prompt_template | cleaner_llm

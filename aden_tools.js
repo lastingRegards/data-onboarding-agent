@@ -21,12 +21,15 @@ function addRow(tableName, data) {
     rows: data
     });
 
-    console.log(`Received: ${tableName}, ${data}`);
+    //console.log(`Received: ${tableName}, ${data}`);
     return { result: "tested", args: [tableName, data] };
 }
 
 // Call the function with parsed arguments
 const result = addRow(args.tableName, args.rows);
 
+console.log(`Received: ${args.tableName}, ${args.rows}`);
+
 // Output the result (will be captured by Python)
+//console.log(JSON.stringify({args: [args.tableName, args.rows]}));
 console.log(JSON.stringify(result));

@@ -54,11 +54,10 @@ def extract_json(output: dict) -> list[dict]:
 
     match = re.search(pattern, text, re.DOTALL)
 
-    json_string = match.string
-    json_string.strip()
-    json_string = json_string[7:-3]
-
     try:
+        json_string = match.string
+        json_string.strip()
+        json_string = json_string[7:-3]
         return json.loads(json_string)
     except Exception:
         raise ValueError(f"Failed to parse JSON: {output["answer"]}")

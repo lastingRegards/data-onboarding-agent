@@ -7,8 +7,11 @@ from langchain.chains.retrieval import create_retrieval_chain
 
 from langchain.chains.combine_documents import create_stuff_documents_chain
 
+from google.cloud.aiplatform_v1beta1.types import Tool as VertexTool
 
 from ingestion import retriever
+
+
 
 
 
@@ -17,6 +20,7 @@ load_dotenv()
 
 
 llm = init_chat_model("gemini-2.0-flash", model_provider="google_genai")
+
 
 
 get_bg = ChatPromptTemplate.from_messages(

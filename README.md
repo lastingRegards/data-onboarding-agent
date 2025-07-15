@@ -62,7 +62,7 @@ Currently, the project takes in a URL to a documentation page and from there wor
 
 
 ## Implementation Notes/Design Decisions
-- **Data to onboard:** System currently operates under assumption that all relevant data from user's account should be onboarded. Possible alternatives:
+- **Data to onboard:** System currently operates under assumption that all relevant data from user's account should be onboarded and does not interact with user outside of receiving initial URL input. Possible alternatives:
     - Consider prompting user for what data should be onboarded before scraping to better inform API scrape
     - Could scrape for all API endpoints, then prompt user to choose which should be used for onboarding
 - **ID handling:** Uncertain if aden/acho IDs should be set by external services/if they are internally assigned by Aden system, so current implementation avoids populating these IDs as importing from multiple different platforms could possibly result in ID conflicts. Possible alternatives:

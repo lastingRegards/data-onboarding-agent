@@ -33,7 +33,7 @@ def ingest_json(path:str):
 
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 docsearch = PineconeVectorStore(index_name=PINECONE_INDEX, embedding=embeddings)
-retriever=docsearch.as_retriever()
+retriever=docsearch.as_retriever(search_kwargs={'k':8})
 
 
 if __name__ == "__main__":

@@ -16,6 +16,8 @@ ratelimit = "*"
 langchain-google-genai = "*"
 langgraph-cli = {extras = ["inmem"], version = "*"}
 jq = "*"
+google-cloud-aiplatform = "*"
+langchain-google-vertexai = "*"
 
 [dev-packages]
 
